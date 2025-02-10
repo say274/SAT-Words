@@ -12,13 +12,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Install jq (JSON Processor)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Fetch JSON File
-        run: |
-          curl -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
+        run: curl -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
 
       - name: Select Random Word
         run: |
-          RANDOM_WORD=$(jq -r '. | random' index.json)
+          TOTAL_WORDS=$(jq 'length' index.json)
+          RANDOM_INDEX=$((RANDOM % TOTAL_WORDS))
+          RANDOM_WORD=$(jq ".[$RANDOM_INDEX]" index.json)
+          
           echo "$RANDOM_WORD" > random.json
 
       - name: Commit and Push Changes
