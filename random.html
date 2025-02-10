@@ -19,7 +19,7 @@
                     throw new Error(`Failed to load JSON file. HTTP status: ${response.status}`);
                 }
 
-                // Parse the JSON data (which is an array)
+                // Parse the JSON data (it should be a plain array, not an object)
                 const wordsArray = await response.json();
 
                 // Ensure it is an array
@@ -28,6 +28,10 @@
                 }
 
                 // Select a random word from the list
+                if (wordsArray.length === 0) {
+                    throw new Error("No words found in the JSON file.");
+                }
+
                 const randomIndex = Math.floor(Math.random() * wordsArray.length);
                 const randomWord = wordsArray[randomIndex];
 
