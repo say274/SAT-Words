@@ -16,14 +16,24 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Fetch JSON File
-        run: curl -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
+        run: |
+          curl -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
 
       - name: Select Random Word
         run: |
           TOTAL_WORDS=$(jq 'length' index.json)
+          if [[ "$TOTAL_WORDS" -eq 0 ]]; then
+            echo "Error: index.json is empty!" >&2
+            exit 3
+          fi
           RANDOM_INDEX=$((RANDOM % TOTAL_WORDS))
           RANDOM_WORD=$(jq ".[$RANDOM_INDEX]" index.json)
-          
+
+          if [[ -z "$RANDOM_WORD" ]]; then
+            echo "Error: Failed to select a random word!" >&2
+            exit 3
+          fi
+
           echo "$RANDOM_WORD" > random.json
 
       - name: Commit and Push Changes
