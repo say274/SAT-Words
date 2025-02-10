@@ -4,31 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Random SAT Word</title>
+</head>
+<body>
+    <pre id="output">Loading...</pre>
+
     <script>
         async function getRandomSATWord() {
             try {
+                // Fetch the JSON file from GitHub Pages
                 const response = await fetch("https://say274.github.io/SAT-Words/index.json");
-                const data = await response.json();
 
-                // Select a random word
-                const wordsArray = data.words;
+                // Check if the response is OK
+                if (!response.ok) {
+                    throw new Error(`Failed to load JSON file. HTTP status: ${response.status}`);
+                }
+
+                // Parse the JSON data (which is an array)
+                const wordsArray = await response.json();
+
+                // Ensure it is an array
+                if (!Array.isArray(wordsArray)) {
+                    throw new Error("Invalid JSON format: Expected an array.");
+                }
+
+                // Select a random word from the list
                 const randomIndex = Math.floor(Math.random() * wordsArray.length);
                 const randomWord = wordsArray[randomIndex];
 
-                // Display JSON in the body (for Dakboard to fetch)
-                document.body.innerText = JSON.stringify({
+                // Display the word as JSON for Dakboard
+                const output = {
                     word: randomWord.word,
-                    meaning: randomWord.meaning
-                });
+                    type: randomWord.type,
+                    definition: randomWord.definition
+                };
+
+                document.getElementById("output").innerText = JSON.stringify(output, null, 2);
             } catch (error) {
-                document.body.innerText = "Error loading words: " + error;
+                document.getElementById("output").innerText = "Error: " + error.message;
+                console.error("Error fetching or parsing JSON:", error);
             }
         }
 
         getRandomSATWord();
     </script>
-</head>
-<body>
-    Loading...
 </body>
 </html>
