@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random SAT Word</title>
+    <script>
+        async function getRandomSATWord() {
+            const response = await fetch("https://say274.github.io/SAT-Words/index.json");
+            const data = await response.json();
+
+            // Select a random word from the list
+            const wordsArray = data.words;
+            const randomIndex = Math.floor(Math.random() * wordsArray.length);
+            const randomWord = wordsArray[randomIndex];
+
+            // Display as JSON for Dakboard
+            document.body.innerText = JSON.stringify({
+                word: randomWord.word,
+                meaning: randomWord.meaning
+            });
+        }
+
+        getRandomSATWord();
+    </script>
+</head>
+<body>
+    Loading...
+</body>
+</html>
