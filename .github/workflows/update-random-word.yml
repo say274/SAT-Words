@@ -1,1 +1,31 @@
 
+name: Update Random Word
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  update-random-word:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Fetch JSON File
+        run: |
+          curl -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
+
+      - name: Select Random Word
+        run: |
+          RANDOM_WORD=$(jq -r '. | random' index.json)
+          echo "$RANDOM_WORD" > random.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add random.json
+          git commit -m "Updated random word"
+          git push
