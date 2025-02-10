@@ -18,16 +18,24 @@ jobs:
       - name: Fetch JSON File
         run: |
           curl -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
+          echo "Downloaded index.json:"
+          cat index.json # Print the JSON file to debug
 
       - name: Select Random Word
         run: |
           TOTAL_WORDS=$(jq 'length' index.json)
+          echo "Total words found in index.json: $TOTAL_WORDS"
+
           if [[ "$TOTAL_WORDS" -eq 0 ]]; then
             echo "Error: index.json is empty!" >&2
             exit 3
           fi
+
           RANDOM_INDEX=$((RANDOM % TOTAL_WORDS))
+          echo "Random index selected: $RANDOM_INDEX"
+          
           RANDOM_WORD=$(jq ".[$RANDOM_INDEX]" index.json)
+          echo "Random Word JSON: $RANDOM_WORD"
 
           if [[ -z "$RANDOM_WORD" ]]; then
             echo "Error: Failed to select a random word!" >&2
