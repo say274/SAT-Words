@@ -1,60 +1,35 @@
-name: Update Random Word
+name: Debug JSON Issue
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # Runs every day at midnight UTC
   workflow_dispatch: # Allows manual triggering
 
 jobs:
-  update-random-word:
+  debug-json:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Install jq (JSON Processor)
-        run: sudo apt-get update && sudo apt-get install -y jq
+        run: sudo apt-get install -y jq
 
-      - name: Fetch JSON File
+      - name: Download JSON File
         run: |
           echo "Downloading index.json..."
-          curl -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
+          curl -s -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
           
           if [[ ! -s index.json ]]; then
-            echo "Error: index.json is empty or not downloaded!" >&2
+            echo "❌ ERROR: index.json is empty or not downloaded!" >&2
             exit 5
           fi
-          
-          echo "Successfully downloaded index.json:"
-          cat index.json
 
-      - name: Select Random Word
+          echo "✅ Successfully downloaded index.json:"
+          cat index.json # Show what GitHub Actions actually downloaded
+
+      - name: Validate JSON Structure
         run: |
-          TOTAL_WORDS=$(jq 'length' index.json)
-          echo "Total words in index.json: $TOTAL_WORDS"
-
-          if [[ "$TOTAL_WORDS" -eq 0 ]]; then
-            echo "Error: index.json is empty!" >&2
+          if ! jq empty index.json; then
+            echo "❌ ERROR: index.json is NOT valid JSON!" >&2
             exit 5
           fi
-
-          RANDOM_INDEX=$(( RANDOM % TOTAL_WORDS ))
-          echo "Selected random index: $RANDOM_INDEX"
-
-          RANDOM_WORD=$(jq -c ".[$RANDOM_INDEX]" index.json)
-          echo "Random Word Selected: $RANDOM_WORD"
-
-          if [[ -z "$RANDOM_WORD" ]]; then
-            echo "Error: Failed to select a random word!" >&2
-            exit 5
-          fi
-
-          echo "$RANDOM_WORD" > random.json
-
-      - name: Commit and Push Changes
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add random.json
-          git commit -m "Updated random word"
-          git push
+          echo "✅ index.json is valid JSON."
