@@ -16,7 +16,7 @@ jobs:
       - name: Download JSON File
         run: |
           echo "Downloading index.json..."
-          curl -s -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json
+          curl -L -s -o index.json https://raw.githubusercontent.com/say274/SAT-Words/main/index.json?timestamp=$(date +%s)
           
           if [[ ! -s index.json ]]; then
             echo "❌ ERROR: index.json is empty or not downloaded!" >&2
@@ -24,7 +24,7 @@ jobs:
           fi
 
           echo "✅ Successfully downloaded index.json:"
-          cat index.json # Show what GitHub Actions actually downloaded
+          cat index.json  # Show what GitHub Actions actually downloaded
 
       - name: Validate JSON Structure
         run: |
@@ -33,3 +33,4 @@ jobs:
             exit 5
           fi
           echo "✅ index.json is valid JSON."
+          
